@@ -1,25 +1,30 @@
 <template>
   <div class="chat">
-    <div class="user-div" v-for="user in this.users" :key="user.id">{{ user.name }}</div>
-    <div class="user-chat-div" v-for="user in this.users" :key="user.id">Чат</div>
+    <ContatsComponent :login="this.login" :users="this.users"/>
+    <ChatWindowComponent  :users="this.users"/>
   </div>
 </template>
   
 <script>
 
-import SockJS from 'sockjs-client';
-import Stomp from 'stompjs';
+import SockJS from 'sockjs-client'
+import Stomp from 'stompjs'
+import ContatsComponent from '@/components/ContatsComponent.vue'
+import ChatWindowComponent from '@/components/ChatWindowComponent.vue'
 
 export default {
   name: 'ChatPage',
 
   components: {
+    ContatsComponent, 
+    ChatWindowComponent,
   },
 
   data: () => ({
     socket: null,
     stompClient: '',
     users: [],
+    login: '',
 
   }),
 
@@ -41,16 +46,16 @@ export default {
 
       // Initiate a WebSocket connection to the server
       let token = this.$store.getters["accessToken"]
-      let login = this.$store.getters["login"]
+      this.login = this.$store.getters["login"]
       this.stompClient.connect(
         {
-          userId: login, // Carry client information
+          userId: this.login, // Carry client information
           token: token
         },
         function connectCallback() {
           console.log("connected")
           __this.stompClient.subscribe(
-            '/user/' + login + '/queue/messages', // Subscribe address
+            '/user/' + __this.login + '/queue/messages', // Subscribe address
             (response) => {
               console.log('connection succeeded', response) // Receive Response data
             }
@@ -95,11 +100,18 @@ export default {
   
   <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.user-div {
-  border: 1px solid black;
-  width: 100px;
-  height: 50px;
-  padding: 5px;
+.chat {
+    width: 1200px;
+    height: 900px;
+    border: 1px black solid;
+    
+    position: absolute;
+    top:0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    
+    margin: auto;
 }
 </style>
   

@@ -58,7 +58,7 @@ export default {
         })
         .catch(error => {
           console.error('Error:', error);
-        });
+        })
       this.loading = false
       // Подписаться на сокет
     },
