@@ -17,6 +17,7 @@ export default {
   },
 
   data: () => ({
+    socket: null,
     stompClient: '',
     users: [],
 
@@ -34,20 +35,22 @@ export default {
   methods: {
 
     connect() {
-      this.socket = new SockJS('http://localhost/chat/ws') // protocol field
+      this.socket = new SockJS('http://localhost:4800/ws') // protocol field
       this.stompClient = Stomp.over(this.socket)
       let __this = this
 
       // Initiate a WebSocket connection to the server
       let token = this.$store.getters["accessToken"]
+      let login = this.$store.getters["login"]
       this.stompClient.connect(
         {
-          userId: this.userId, // Carry client information
+          userId: login, // Carry client information
           token: token
         },
         function connectCallback() {
+          console.log("connected")
           __this.stompClient.subscribe(
-            '/user/' + this.$store.getters["login"] + '/queue/messages', // Subscribe address
+            '/user/' + login + '/queue/messages', // Subscribe address
             (response) => {
               console.log('connection succeeded', response) // Receive Response data
             }

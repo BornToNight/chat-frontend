@@ -5,6 +5,7 @@ const store = createStore({
     state() {
         return {
             accessToken: "",
+            login: "",
         }
     },
     getters: {
