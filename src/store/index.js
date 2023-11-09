@@ -8,13 +8,18 @@ const store = createStore({
         }
     },
     getters: {
-        accessToken: (state) => state.accessToken
+        accessToken: (state) => state.accessToken,
+        login: (state) => state.login,
     },
     mutations: {
         SET_ACCESS_TOKEN(state, accessToken) {
             state.accessToken = accessToken
-        }
+        },
+        SET_LOGIN(state, login) {
+            state.login = login
+        },
     }
+
 })
 
 export default store

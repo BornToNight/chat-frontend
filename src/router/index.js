@@ -1,5 +1,5 @@
-import LoginPage from '../components/LoginPage.vue'
-import ChatPage from '../components/ChatPage.vue'
+import LoginPage from '../pages/LoginPage.vue'
+import ChatPage from '../pages/ChatPage.vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
 
 const routes = [
@@ -9,7 +9,7 @@ const routes = [
 
 const router = createRouter({
     history: createWebHashHistory(),
-    routes, 
+    routes,
 })
 
 export default router

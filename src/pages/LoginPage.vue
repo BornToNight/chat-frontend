@@ -1,13 +1,15 @@
 <template>
   <div class="login">
 
-    <v-form>
+    <v-form v-model="form" @submit.prevent="onSubmit">
 
-      <v-text-field v-model="login" label="Login" outlined></v-text-field>
+      <v-text-field v-model="login" :readonly="loading" :rules="[required]" class="mb-2" label="Login"></v-text-field>
 
-      <v-text-field v-model="password" type="password" label="Password" outlined></v-text-field>
+      <v-text-field type="password" v-model="password" :readonly="loading" :rules="[required]" label="Password"
+        placeholder="Password"></v-text-field>
 
-      <v-btn class="btn-login"  color="blue" elevation="7" @click="onSubmit"> Login</v-btn>
+      <v-btn class="btn-login" :disabled="!form" :loading="loading" type="submit" color="blue" elevation="7">
+        Login</v-btn>
 
     </v-form>
 
@@ -23,13 +25,16 @@ export default {
   },
 
   data: () => ({
+    form: false,
     login: "",
-    password: ""
+    password: "",
+    loading: false,
   }),
 
   methods: {
 
     async onSubmit() {
+      this.loading = true
       const data = {
         login: this.login,
         password: this.password
@@ -46,6 +51,7 @@ export default {
         .then(data => {
           if (data?.result?.token) {
             this.$store.commit("SET_ACCESS_TOKEN", data.result.token)
+            this.$store.commit("SET_LOGIN", data.result.login)
             this.$router.push("/chat")
           }
 
@@ -53,8 +59,13 @@ export default {
         .catch(error => {
           console.error('Error:', error);
         });
-        // Подписаться на сокет
-    }
+      this.loading = false
+      // Подписаться на сокет
+    },
+
+    required(v) {
+      return !!v || 'Field is required'
+    },
   }
 }
 
