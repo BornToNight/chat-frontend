@@ -51,7 +51,7 @@ export default {
         .then(data => {
           if (data?.result?.token) {
             this.$store.commit("SET_ACCESS_TOKEN", data.result.token)
-            this.$store.commit("SET_LOGIN", this.login)
+            this.$store.commit("SET_ATUAL_USER", { login: this.login, name: data.result.userName })
             this.$router.push("/chat")
           }
 

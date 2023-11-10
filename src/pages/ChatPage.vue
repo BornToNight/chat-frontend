@@ -1,7 +1,7 @@
 <template>
   <div class="chat">
-    <ContatsComponent :login="this.login" :users="this.users"/>
-    <ChatWindowComponent  :users="this.users"/>
+    <ContatsComponent :autalUser="this.autalUser" :users="this.users" />
+    <ChatWindowComponent :stomp-client="this.stompClient" :autalUser="this.autalUser" :users="this.users" />
   </div>
 </template>
   
@@ -16,7 +16,7 @@ export default {
   name: 'ChatPage',
 
   components: {
-    ContatsComponent, 
+    ContatsComponent,
     ChatWindowComponent,
   },
 
@@ -24,7 +24,7 @@ export default {
     socket: null,
     stompClient: '',
     users: [],
-    login: '',
+    autalUser: {},
 
   }),
 
@@ -46,16 +46,16 @@ export default {
 
       // Initiate a WebSocket connection to the server
       let token = this.$store.getters["accessToken"]
-      this.login = this.$store.getters["login"]
+      this.autalUser = this.$store.getters["atualUser"]
       this.stompClient.connect(
         {
-          userId: this.login, // Carry client information
+          userId: this.autalUser.login, // Carry client information
           token: token
         },
         function connectCallback() {
           console.log("connected")
           __this.stompClient.subscribe(
-            '/user/' + __this.login + '/queue/messages', // Subscribe address
+            '/user/' + __this.autalUser.login + '/queue/messages', // Subscribe address
             (response) => {
               console.log('connection succeeded', response) // Receive Response data
             }
@@ -101,17 +101,17 @@ export default {
   <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .chat {
-    width: 1200px;
-    height: 900px;
-    border: 1px black solid;
-    
-    position: absolute;
-    top:0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    
-    margin: auto;
+  width: 1200px;
+  height: 900px;
+  border: 1px black solid;
+
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  margin: auto;
 }
 </style>
   

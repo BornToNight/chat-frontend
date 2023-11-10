@@ -12,16 +12,15 @@ export default {
       type: Array,
       required: true,
     },
-    login: {
-      type: String,
+    autalUser: {
+      type: Object,
       required: true,
     },
   },
   methods: {
     openWindowChat: async function (user) {
-      console.log(this.login)
-      console.log(user)
-      await fetch('http://localhost:4800/messages/' + this.login + '/' + user.login, {
+      this.$store.commit("SET_ACTIVE_USER", user)
+      await fetch('http://localhost:4800/messages/' + this.autalUser.login + '/' + user.login, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -31,6 +30,7 @@ export default {
         .then(data => {
           if (data) {
             console.log(data)
+            this.$store.commit("SET_MESSAGES", data)
           }
 
         })
