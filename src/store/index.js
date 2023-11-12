@@ -5,7 +5,7 @@ const store = createStore({
     state() {
         return {
             accessToken: "",
-            atualUser: {},
+            currentUser: {},
             userName: "",
             messages: [],
             activeUser: {},
@@ -13,7 +13,7 @@ const store = createStore({
     },
     getters: {
         accessToken: (state) => state.accessToken,
-        atualUser: (state) => state.atualUser,
+        currentUser: (state) => state.currentUser,
         messages: (state) => state.messages,
         activeUser: (state) => state.activeUser,
     },
@@ -21,11 +21,14 @@ const store = createStore({
         SET_ACCESS_TOKEN(state, accessToken) {
             state.accessToken = accessToken
         },
-        SET_ATUAL_USER(state, atualUser) {
-            state.atualUser = atualUser
+        SET_CURRENT_USER(state, currentUser) {
+            state.currentUser = currentUser
         },
         SET_MESSAGES(state, messages) {
             state.messages = messages
+        },
+        ADD_MESSAGE(state, message) {
+            state.messages = [...state.messages, message]
         },
         SET_ACTIVE_USER(state, activeUser) {
             state.activeUser = activeUser

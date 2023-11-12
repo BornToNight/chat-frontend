@@ -1,7 +1,7 @@
 <template>
   <div class="chat">
-    <ContatsComponent :autalUser="this.autalUser" :users="this.users" />
-    <ChatWindowComponent :stomp-client="this.stompClient" :autalUser="this.autalUser" :users="this.users" />
+    <ContatsComponent :users="this.users" />
+    <ChatWindowComponent :stomp-client="this.stompClient" :users="this.users" />
   </div>
 </template>
   
@@ -24,7 +24,7 @@ export default {
     socket: null,
     stompClient: '',
     users: [],
-    autalUser: {},
+    currentUser: {},
 
   }),
 
@@ -42,25 +42,51 @@ export default {
     connect() {
       this.socket = new SockJS('http://localhost:4800/ws') // protocol field
       this.stompClient = Stomp.over(this.socket)
-      let __this = this
 
       // Initiate a WebSocket connection to the server
-      let token = this.$store.getters["accessToken"]
-      this.autalUser = this.$store.getters["atualUser"]
+      // let token = this.$store.getters["accessToken"]
+      this.currentUser = this.$store.getters["currentUser"]
+
       this.stompClient.connect(
         {
-          userId: this.autalUser.login, // Carry client information
-          token: token
+          userId: this.currentUser.login, // Carry client information
+          // token: token
         },
         function connectCallback() {
-          console.log("connected")
-          __this.stompClient.subscribe(
-            '/user/' + __this.autalUser.login + '/queue/messages', // Subscribe address
+          this.stompClient.subscribe(
+            '/user/' + this.currentUser.login + '/queue/messages', // Subscribe address
             (response) => {
               console.log('connection succeeded', response) // Receive Response data
+
+              const notification = JSON.parse(response.body);
+
+              const activeUser = this.$store.getters["activeUser"]
+
+              if (activeUser.login === notification.senderId) {
+
+                fetch('http://localhost:4800/messages/' + notification.id, {
+                  method: 'GET',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                })
+                  .then(response => response.json())
+                  .then(data => {
+                    if (data) {
+                      this.$store.commit("ADD_MESSAGE", data)
+                    }
+
+                  })
+                  .catch(error => {
+                    console.error('Error:', error);
+                  })
+
+              } else {
+                console.log("Received a new message from " + notification.senderName);
+              }
             }
           )
-        },
+        }.bind(this),
         function errorCallBack(error) {
           console.log('Connection failed:' + error)
         }
@@ -79,6 +105,30 @@ export default {
         .then(data => {
           if (data?.result) {
             this.users = data?.result
+
+            data?.result.forEach((user) => {
+              if (user.avatar.fileName !== "") {
+                fetch('http://localhost:3600/api/file/' + user.avatar.fileName, {
+                  headers: {
+                    'Authorization': 'Bearer ' + this.$store.getters["accessToken"]
+                  },
+                  responseType: 'blob',
+                }
+                )
+                  .then(response => {
+                    if (response.ok) {
+                      const blob = new Blob([response.data]);
+                      const imageUrl = URL.createObjectURL(blob);
+                      console.log(user.login);
+                      localStorage.setItem(user.login, imageUrl);
+                    }
+                  })
+
+                  .catch(error => {
+                    console.error('Error:', error);
+                  });
+              }
+            })
           }
 
         })
@@ -93,7 +143,7 @@ export default {
       }
     },
 
-  }
+  },
 }
 
 </script>
@@ -103,15 +153,10 @@ export default {
 .chat {
   width: 1200px;
   height: 900px;
-  border: 1px black solid;
-
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-
   margin: auto;
+  margin-top: 20px;
+
+  display: flex;
 }
 </style>
   

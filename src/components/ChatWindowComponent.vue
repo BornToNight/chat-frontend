@@ -1,40 +1,40 @@
 <template>
   <div class="chat-window">
-    <div class="user-div" :class="[message.senderId === this.autalUser.login ? 'sender-message' : 'recipient-message']"
-      v-for="message in messages" :key="message.id">{{ message.content }}</div>
-    <v-text-field class="message-input" v-model="messageInput" append-icon="mdi-send" :prepend-icon="icon"
-      variant="filled" clear-icon="mdi-close-circle" clearable label="Message" type="text" @click:append="sendMessage"
-      @click:prepend="changeIcon" @click:clear="clearMessage"></v-text-field>
+    <div class="active-user">
+      <v-avatar class="active-user-avatar" color="white" image="favicon.ico" size="40"></v-avatar>
+      <div class="active-user-text">
+        {{ activeUser.name }}
+      </div>
+    </div>
+    <hr color="#cccccc">
+    <div class="chat-messages" ref="scrollContainer">
+      <div class="message" :class="[message.senderId === this.currentUser.login ? 'sender-message' : 'recipient-message']"
+        v-for="message in messages" :key="message.id">{{ message.content }}
+      </div>
+    </div>
+    <div class="message-input-containter">
+      <v-text-field class="message-input" v-model="messageInput" variant="filled" clear-icon="mdi-close-circle" clearable
+      single-line label="Напишите сообщение..."  @keyup.enter="sendMessage" type="text" hide-details="auto" @click:clear="clearMessage"></v-text-field>
+      <v-btn class="message-button" icon="mdi-send" @click="sendMessage" >
+      </v-btn>
+    </div>
   </div>
 </template>
   
 <script>
-import { mapState } from 'vuex';
+import { mapGetters } from 'vuex';
 
 export default {
   data: () => ({
-    messageInput: 'Hey!',
+    messageInput: '',
     marker: true,
     iconIndex: 0,
-    icons: [
-      'mdi-emoticon',
-      'mdi-emoticon-cool',
-      'mdi-emoticon-dead',
-      'mdi-emoticon-excited',
-      'mdi-emoticon-happy',
-      'mdi-emoticon-neutral',
-      'mdi-emoticon-sad',
-      'mdi-emoticon-tongue',
-    ],
+    scrollContainer: null,
   }),
   props: {
     users: {
       type: Array,
       required: true
-    },
-    autalUser: {
-      type: Object,
-      required: true,
     },
     stompClient: {
       type: Object,
@@ -42,39 +42,51 @@ export default {
     },
   },
   computed: {
-    ...mapState(['messages']),
+    ...mapGetters(['messages']),
     icon() {
       return this.icons[this.iconIndex];
+    },
+    currentUser() {
+      return this.$store.getters["currentUser"]
+    },
+    activeUser() {
+      return this.$store.getters["activeUser"]
     },
   },
   methods: {
     sendMessage() {
-
       if (this.messageInput.trim() !== "") {
         const message = {
-          senderId: this.autalUser.login,
-          recipientId: this.$store.getters["activeUser"].login,
-          senderName: this.autalUser.name,
-          recipientName: this.$store.getters["activeUser"].name,
+          senderId: this.currentUser.login,
+          recipientId: this.activeUser.login,
+          senderName: this.currentUser.name,
+          recipientName: this.activeUser.name,
           content: this.messageInput,
           timestamp: new Date(),
         };
         this.stompClient.send("/app/chat", {}, JSON.stringify(message));
+        if (this.currentUser.login != this.activeUser.login) {
+          this.$store.commit("ADD_MESSAGE", message)
+        }
       }
 
-      this.resetIcon()
       this.clearMessage()
     },
     clearMessage() {
       this.messageInput = ''
     },
-    resetIcon() {
-      this.iconIndex = 0
+    scrollDown(behavior) {
+      this.$nextTick(() => {
+        this.$refs.scrollContainer.scrollTo({ behavior, top: this.$refs.scrollContainer.scrollHeight })
+      });
+    }
+  },
+  watch: {
+    activeUser() {
+      this.scrollDown("instant")
     },
-    changeIcon() {
-      this.iconIndex === this.icons.length - 1
-        ? this.iconIndex = 0
-        : this.iconIndex++
+    messages() {
+      this.scrollDown("smooth")
     },
   },
 }
@@ -82,27 +94,100 @@ export default {
 </script>
 
 <style>
+.chat-window {
+  background-color: #f5f5f5;
+  width: 80%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0px;
+  border-radius: 0px 10px 10px 0px;
+}
+
+.active-user {
+  background: #45607c;
+  display: flex;
+  align-items: center;
+  min-height: 72px;
+  border-radius: 0px 10px 0px 0px;
+}
+
+.active-user-avatar {
+  margin-left: 10px;
+}
+
+.active-user-text {
+  text-align: center;
+  margin-left: 10px;
+}
+
+.chat-messages {
+  flex-grow: 1;
+  overflow-y: scroll;
+  max-height: calc(100%-300px);
+  gap: 50px;
+
+}
+
+.chat-messages::-webkit-scrollbar {
+  width: 12px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background-color: #cccccc;
+  border-radius: 20px;
+  border: 3px solid #f5f5f5;
+}
+
+.message {
+  border-radius: 10px;
+  padding: 8px;
+  width: max-content;
+  max-width: 900px;
+  white-space: normal;
+  word-wrap: break-word;
+  margin-top: 5px;
+}
+
 .sender-message {
-  width: 100%;
-  text-align: right;
+  background-color: white;
+  margin-left: auto;
+  margin-right: 5px;
 }
 
 .recipient-message {
-  width: 100%;
+  background-color: #32465a;
+  color: white;
+  margin-left: 5px;
 }
 
-.chat-window {
-  background-color: khaki;
-  width: 90%;
-  height: 100%;
-
-  float: left;
+.message-input-containter {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
 }
 
 .message-input {
-  position: absolute;
-  bottom: 0px;
-  margin: 10px;
-  width: 88%;
+  width: 94%;
+}
+
+.message-button {
+  width: 6% !important;
+  background-color: #32465a;
+  border-radius: 0 !important;
+  height: 100% !important;
+  color: white;
+}
+
+.v-input__append {
+  width: 50px !important;
+  color: white;
+  margin-left: 0px !important;
+  background: #32465a;
+  border-radius: 0px 5px 5px 0px;
+  text-align: center !important;
+  padding-left: 10px;
+
 }
 </style>
