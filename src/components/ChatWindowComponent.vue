@@ -140,7 +140,6 @@ export default {
 .chat-messages {
   flex-grow: 1;
   overflow-y: scroll;
-  max-height: calc(100%-300px);
   gap: 50px;
 
 }
