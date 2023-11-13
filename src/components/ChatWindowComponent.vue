@@ -3,7 +3,7 @@
     <div class="active-user">
       <img class="active-user-avatar" :src="activeUser.login == '' ? 'unnamed.jpg' : imageData(activeUser.login)">
       <div class="active-user-text">
-        {{ activeUser.name }} ( {{ activeUser.firstName }} {{ activeUser.lastName }} - {{ activeUser.position }})
+        {{ activeUser.name }} ({{ activeUser.firstName }} {{ activeUser.lastName }} - {{ activeUser.position }})
       </div>
     </div>
     <hr color="#cccccc">
@@ -165,14 +165,14 @@ export default {
 }
 
 .sender-message {
-  background-color: white;
+  background-color: #32465a;
+  color: white;
   margin-left: auto;
   margin-right: 5px;
 }
 
 .recipient-message {
-  background-color: #32465a;
-  color: white;
+  background-color: white;
   margin-left: 5px;
 }
 
