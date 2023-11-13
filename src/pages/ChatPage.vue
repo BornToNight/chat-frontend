@@ -1,7 +1,7 @@
 <template>
   <div class="chat">
     <ContatsComponent :users="this.users" />
-    <ChatWindowComponent :stomp-client="this.stompClient" :users="this.users" />
+    <ChatWindowComponent :stomp-client="this.stompClient" />
   </div>
 </template>
   
@@ -29,7 +29,6 @@ export default {
   }),
 
   mounted() {
-    this.getAllUsers()
     this.connect()
   },
 
@@ -82,7 +81,10 @@ export default {
                   })
 
               } else {
-                console.log("Received a new message from " + notification.senderName);
+                if (!this.$store.getters["exsistsUnreadMessages"].includes(notification.senderId)) {
+                  this.$store.commit("ADD_EXSISTS_UNREAD_MESSAGES", notification.senderId)
+                }
+                console.log("Received a new message from " + notification.senderId);
               }
             }
           )
@@ -91,50 +93,6 @@ export default {
           console.log('Connection failed:' + error)
         }
       )
-    },
-
-    async getAllUsers() {
-
-      await fetch('http://localhost:3700/api/auth/user', {
-        headers: {
-          'Authorization': 'Bearer ' + this.$store.getters["accessToken"]
-        }
-      }
-      )
-        .then(response => response.json())
-        .then(data => {
-          if (data?.result) {
-            this.users = data?.result
-
-            data?.result.forEach((user) => {
-              if (user.avatar.fileName !== "") {
-                fetch('http://localhost:3600/api/file/' + user.avatar.fileName, {
-                  headers: {
-                    'Authorization': 'Bearer ' + this.$store.getters["accessToken"]
-                  },
-                  responseType: 'blob',
-                }
-                )
-                  .then(response => {
-                    if (response.ok) {
-                      const blob = new Blob([response.data]);
-                      const imageUrl = URL.createObjectURL(blob);
-                      console.log(user.login);
-                      localStorage.setItem(user.login, imageUrl);
-                    }
-                  })
-
-                  .catch(error => {
-                    console.error('Error:', error);
-                  });
-              }
-            })
-          }
-
-        })
-        .catch(error => {
-          console.error('Error:', error);
-        });
     },
 
     disconnect() {

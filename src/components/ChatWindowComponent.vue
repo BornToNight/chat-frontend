@@ -1,9 +1,9 @@
 <template>
   <div class="chat-window">
     <div class="active-user">
-      <v-avatar class="active-user-avatar" color="white" image="favicon.ico" size="40"></v-avatar>
+      <img class="active-user-avatar" :src="activeUser.login == '' ? 'unnamed.jpg' : imageData(activeUser.login)">
       <div class="active-user-text">
-        {{ activeUser.name }}
+        {{ activeUser.name }} ( {{ activeUser.firstName }} {{ activeUser.lastName }} - {{ activeUser.position }})
       </div>
     </div>
     <hr color="#cccccc">
@@ -14,8 +14,9 @@
     </div>
     <div class="message-input-containter">
       <v-text-field class="message-input" v-model="messageInput" variant="filled" clear-icon="mdi-close-circle" clearable
-      single-line label="Напишите сообщение..."  @keyup.enter="sendMessage" type="text" hide-details="auto" @click:clear="clearMessage"></v-text-field>
-      <v-btn class="message-button" icon="mdi-send" @click="sendMessage" >
+        single-line label="Напишите сообщение..." @keyup.enter="sendMessage" type="text" hide-details="auto"
+        @click:clear="clearMessage"></v-text-field>
+      <v-btn class="message-button" icon="mdi-send" @click="sendMessage">
       </v-btn>
     </div>
   </div>
@@ -32,10 +33,6 @@ export default {
     scrollContainer: null,
   }),
   props: {
-    users: {
-      type: Array,
-      required: true
-    },
     stompClient: {
       type: Object,
       required: true,
@@ -51,6 +48,19 @@ export default {
     },
     activeUser() {
       return this.$store.getters["activeUser"]
+    },
+    users() {
+      return this.$store.getters["users"]
+    },
+    imageData() {
+      return (login) => {
+        const avatar = localStorage.getItem(login)
+        if (avatar == null) {
+          return 'unnamed.jpg'
+        } else {
+          return localStorage.getItem(login)
+        }
+      }
     },
   },
   methods: {
@@ -114,12 +124,17 @@ export default {
 }
 
 .active-user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  clip-path: circle();
   margin-left: 10px;
 }
 
 .active-user-text {
   text-align: center;
   margin-left: 10px;
+  color: white;
 }
 
 .chat-messages {
@@ -175,7 +190,7 @@ export default {
 .message-button {
   width: 6% !important;
   background-color: #32465a;
-  border-radius: 0 !important;
+  border-radius: 0 0 10px !important;
   height: 100% !important;
   color: white;
 }

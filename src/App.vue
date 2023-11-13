@@ -15,9 +15,6 @@ export default {
 
   },
 
-  data: () => ({
-    //
-  }),
   created() {
     if (this.$store.getters["accessToken"]) {
       this.$router.push("/chat")

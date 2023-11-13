@@ -1,8 +1,7 @@
 <template>
   <div class="contacts">
     <div class="current-user">
-      <v-avatar class="current-user-avatar" color="white" :image="imageData(currentUser.login)" size="40"></v-avatar>
-      <img :src="imageData(currentUser.login)" alt="Изображение">
+      <img class="user-avatar" :src="imageData(currentUser.login)">
       <div class="current-user-text">
         {{ currentUser.name }}
       </div>
@@ -11,10 +10,11 @@
     <div class="users">
       <div class="user" :style="getDivStyle(user)" v-on:click="openWindowChat(user)" v-for="user in users"
         :key="user.login">
-        <v-avatar class="current-user-avatar" color="white" image="smirk.png" size="40"></v-avatar>
+        <img class="user-avatar" :src="imageData(user.login)">
         <div class="current-user-text">
           {{ user.name }}
         </div>
+        <div class="unread-message" v-if="this.exsistsUnreadMessages.includes(user.login)"></div>
       </div>
     </div>
   </div>
@@ -23,24 +23,32 @@
 <script>
 
 export default {
-  props: {
-    users: {
-      type: Array,
-      required: true,
-    },
-  },
   computed: {
+    exsistsUnreadMessages() {
+      return this.$store.getters["exsistsUnreadMessages"]
+    },
     currentUser() {
       return this.$store.getters["currentUser"]
     },
     activeUser() {
       return this.$store.getters["activeUser"]
     },
+    users() {
+      return this.$store.getters["users"]
+    },
+    avatars() {
+      return this.$store.getters["avatars"]
+    },
     imageData() {
       return (login) => {
-        console.log(localStorage.getItem(login));
-        return localStorage.getItem(login);
-      };
+        console.log("imageData = " + login);
+        const avatar = this.avatars.find((element) => element.login == login);
+        if (avatar == null) {
+          return 'unnamed.jpg'
+        } else {
+          return avatar.imageUrl
+        }
+      }
     },
   },
   methods: {
@@ -69,6 +77,8 @@ export default {
           console.error('Error:', error);
         })
       this.$store.commit("SET_ACTIVE_USER", user)
+      this.$store.commit("DELETE_EXSISTS_UNREAD_MESSAGES", user.login)
+
     }
   }
 }
@@ -90,7 +100,11 @@ export default {
   height: 8%;
 }
 
-.current-user-avatar {
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  clip-path: circle();
   margin-left: 10px;
 }
 
@@ -129,5 +143,14 @@ export default {
 
 .user:active {
   background-color: #3c5b80;
+}
+
+.unread-message {
+  background-color: #006eff;
+  width: 12px;
+  height: 12px;
+  clip-path: circle();
+  margin-left: auto;
+  margin-right: 10px;
 }
 </style>
