@@ -59,7 +59,7 @@ export default {
       };
     },
     openWindowChat: async function (user) {
-      await fetch('http://localhost:4800/api/chat/messages/' + this.currentUser.login + '/' + user.login, {
+      await fetch('http://172.16.20.73/api/chat/messages/' + this.currentUser.login + '/' + user.login, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'

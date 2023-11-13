@@ -37,7 +37,7 @@ export default {
         password: this.password
       };
 
-      fetch('http://localhost:3700/api/auth/generate', {
+      fetch('http://172.16.20.73/api/auth/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -63,7 +63,7 @@ export default {
 
     getAllUsers() {
 
-      fetch('http://localhost:3700/api/auth/user', {
+      fetch('http://172.16.20.73/api/auth/user', {
         headers: {
           'Authorization': 'Bearer ' + this.$store.getters["accessToken"]
         }
@@ -75,7 +75,7 @@ export default {
 
             data?.result.forEach((user) => {
               if (user.avatar.fileName !== "") {
-                fetch('http://localhost:3600/api/file/' + user.avatar.fileName, {
+                fetch('http://172.16.20.73/api/file/' + user.avatar.fileName, {
                   headers: {
                     'Authorization': 'Bearer ' + this.$store.getters["accessToken"]
                   },

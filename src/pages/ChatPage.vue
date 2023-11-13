@@ -39,7 +39,7 @@ export default {
   methods: {
 
     connect() {
-      this.socket = new SockJS('http://localhost:4800/api/chat/ws') // protocol field
+      this.socket = new SockJS('http://172.16.20.73/api/chat/ws') // protocol field
       this.stompClient = Stomp.over(this.socket)
 
       // Initiate a WebSocket connection to the server
@@ -63,7 +63,7 @@ export default {
 
               if (activeUser.login === notification.senderId) {
 
-                fetch('http://localhost:4800/api/chat/messages/' + notification.id, {
+                fetch('http://172.16.20.73/api/chat/messages/' + notification.id, {
                   method: 'GET',
                   headers: {
                     'Content-Type': 'application/json'
