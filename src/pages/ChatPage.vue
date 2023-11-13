@@ -39,7 +39,7 @@ export default {
   methods: {
 
     connect() {
-      this.socket = new SockJS('http://localhost:4800/ws') // protocol field
+      this.socket = new SockJS('http://localhost:4800/api/chat/ws') // protocol field
       this.stompClient = Stomp.over(this.socket)
 
       // Initiate a WebSocket connection to the server
@@ -53,7 +53,7 @@ export default {
         },
         function connectCallback() {
           this.stompClient.subscribe(
-            '/user/' + this.currentUser.login + '/queue/messages', // Subscribe address
+            '/api/chat/user/' + this.currentUser.login + '/queue/messages', // Subscribe address
             (response) => {
               console.log('connection succeeded', response) // Receive Response data
 
@@ -63,7 +63,7 @@ export default {
 
               if (activeUser.login === notification.senderId) {
 
-                fetch('http://localhost:4800/messages/' + notification.id, {
+                fetch('http://localhost:4800/api/chat/messages/' + notification.id, {
                   method: 'GET',
                   headers: {
                     'Content-Type': 'application/json'

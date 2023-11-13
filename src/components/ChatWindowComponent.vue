@@ -74,7 +74,7 @@ export default {
           content: this.messageInput,
           timestamp: new Date(),
         };
-        this.stompClient.send("/app/chat", {}, JSON.stringify(message));
+        this.stompClient.send("/api/chat", {}, JSON.stringify(message));
         if (this.currentUser.login != this.activeUser.login) {
           this.$store.commit("ADD_MESSAGE", message)
         }

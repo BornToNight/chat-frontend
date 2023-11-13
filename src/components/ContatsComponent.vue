@@ -41,7 +41,6 @@ export default {
     },
     imageData() {
       return (login) => {
-        console.log("imageData = " + login);
         const avatar = this.avatars.find((element) => element.login == login);
         if (avatar == null) {
           return 'unnamed.jpg'
@@ -60,7 +59,7 @@ export default {
       };
     },
     openWindowChat: async function (user) {
-      await fetch('http://localhost:4800/messages/' + this.currentUser.login + '/' + user.login, {
+      await fetch('http://localhost:4800/api/chat/messages/' + this.currentUser.login + '/' + user.login, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
